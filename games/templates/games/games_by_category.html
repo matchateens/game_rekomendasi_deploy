@@ -1,0 +1,120 @@
+{% extends "games/base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="category-header">
+        <h1 class="page-title">{{ category_type }}: {{ category_name }}</h1>
+    </div>
+    
+    <div class="games-grid">
+        {% for game in games %}
+        <div class="game-card">
+            <a href="{% url 'games:game_detail' game.id %}" class="game-card-link">
+                <div class="game-image">
+                    {% if game.cover_image_url %}
+                        <img src="{{ game.cover_image_url }}" alt="{{ game.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x400?text=No+Image" alt="No image available">
+                    {% endif %}
+                </div>
+                <div class="game-info">
+                    <h3>{{ game.name }}</h3>
+                    <div class="game-meta">
+                        {% if game.rating %}
+                            <span class="rating">★ {{ game.rating|floatformat:1 }}</span>
+                        {% endif %}
+                        {% if game.released %}
+                            <span class="release-date">{{ game.released|date:"Y" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="no-games">
+            <p>No games found in this category.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.category-header {
+    margin: 40px 0;
+    text-align: center;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.game-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.game-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.game-image {
+    position: relative;
+    padding-top: 133%; /* 3:4 aspect ratio */
+}
+
+.game-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.game-info {
+    padding: 15px;
+}
+
+.game-info h3 {
+    font-size: 1.1rem;
+    margin: 0 0 10px 0;
+    color: var(--text-primary);
+}
+
+.game-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.rating {
+    color: #ffd700;
+}
+
+.no-games {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %}

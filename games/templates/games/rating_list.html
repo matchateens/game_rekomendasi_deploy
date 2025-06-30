@@ -1,0 +1,118 @@
+{% extends "games/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">Game Ratings</h1>
+    
+    <div class="rating-grid">
+        {% for group_name, games in rating_data.items %}
+        <a href="{% url 'games:games_by_rating' group_name|slugify %}" class="rating-card" {% if games.0.cover_image_url %}style="background-image: url('{{ games.0.cover_image_url }}');"{% else %}style="background-image: url('https://via.placeholder.com/300x200?text=No+Image');"{% endif %}>
+            <div class="rating-overlay">
+                <h2>{{ group_name }}</h2>
+                <p>Example games:</p>
+                <ul>
+                    {% for game in games %}
+                        <li>{{ game.name }} - Rating: {{ game.rating }}</li>
+                    {% empty %}
+                        <li>No games found in this rating group.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+<style>
+.page-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin: 40px 0;
+    color: var(--text-primary);
+}
+
+.rating-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.rating-card {
+    position: relative;
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.rating-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.rating-card:hover .rating-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.rating-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.rating-overlay h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.rating-overlay p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.rating-overlay ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.rating-overlay li {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    .rating-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .rating-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .rating-card {
+        height: 180px;
+    }
+    
+    .rating-overlay h2 {
+        font-size: 1.5rem;
+    }
+}
+</style>

@@ -1,0 +1,118 @@
+{% extends "games/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">Publishers</h1>
+    
+    <div class="publisher-grid">
+        {% for item in publisher_data %}
+        <a href="{% url 'games:games_by_publisher' item.publisher.name %}" class="publisher-card" {% if item.example_games.0.cover_image_url %}style="background-image: url('{{ item.example_games.0.cover_image_url }}');"{% else %}style="background-image: url('https://via.placeholder.com/300x200?text=No+Image');"{% endif %}>
+            <div class="publisher-overlay">
+                <h2>{{ item.publisher.name }}</h2>
+                <p>Some games:</p>
+                <ul>
+                    {% for game in item.example_games %}
+                        <li>{{ game.name }}</li>
+                    {% empty %}
+                        <li>No games available</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+<style>
+.page-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin: 40px 0;
+    color: var(--text-primary);
+}
+
+.publisher-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.publisher-card {
+    position: relative;
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    text-decoration: none;
+    color: white;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.publisher-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.publisher-card:hover .publisher-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.publisher-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.publisher-overlay h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.publisher-overlay p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.publisher-overlay ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.publisher-overlay li {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    .publisher-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .publisher-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .publisher-card {
+        height: 180px;
+    }
+    
+    .publisher-overlay h2 {
+        font-size: 1.5rem;
+    }
+}
+</style>

@@ -1,0 +1,540 @@
+{% extends 'games/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <div class="dashboard-header">
+        <h1>Dashboard - {{ user.username }}</h1>
+        <p class="welcome-text">Selamat datang di dashboard personal Anda!</p>
+    </div>
+    
+    <!-- User Statistics -->
+    <div class="stats-section">
+        <h2>Statistik Anda</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_ratings }}</h3>
+                    <p>Game yang Dirating</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.avg_rating|floatformat:1 }}</h3>
+                    <p>Rating Rata-rata</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-mouse-pointer"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_interactions }}</h3>
+                    <p>Total Interaksi</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ stats.favorite_genres|length }}</h3>
+                    <p>Genre Favorit</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Favorite Genres -->
+    {% if stats.favorite_genres %}
+    <div class="favorite-genres-section">
+        <h2>Genre Favorit Anda</h2>
+        <div class="genre-list">
+            {% for genre in stats.favorite_genres %}
+                <div class="genre-item">
+                    <span class="genre-name">{{ genre.game__genres__name|default:"Unknown" }}</span>
+                    <span class="genre-count">{{ genre.count }} interaksi</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recommendation Sections -->
+    <div class="recommendations-section">
+        <h2>Rekomendasi untuk Anda</h2>
+        
+        <!-- Recommendation Type Selector -->
+        <div class="recommendation-controls">
+            <button class="rec-type-btn active" data-type="hybrid">Hybrid</button>
+            <button class="rec-type-btn" data-type="content">Content-Based</button>
+            <button class="rec-type-btn" data-type="collaborative">Collaborative</button>
+            <button class="rec-type-btn" data-type="popular">Popular</button>
+        </div>
+        
+        <!-- Recommendations Grid -->
+        <div class="recommendations-grid" id="recommendations-container">
+            {% for game in recent_recommendations %}
+            <div class="recommendation-card">
+                <div class="rec-game-image">
+                    <img src="{{ game.cover_image_url }}" alt="Cover untuk {{ game.name }}">
+                </div>
+                <div class="rec-game-info">
+                    <h4><a href="{% url 'games:game_detail' game.id %}">{{ game.name }}</a></h4>
+                    <p class="rec-game-rating">Rating: {{ game.rating|floatformat:1|default:"N/A" }}/5</p>
+                    <p class="rec-game-release">{{ game.released|date:"Y"|default:"TBA" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="load-more-container">
+            <button id="load-more-btn" class="load-more-btn">Muat Lebih Banyak</button>
+        </div>
+    </div>
+    
+    <!-- Recent Ratings -->
+    {% if recent_ratings %}
+    <div class="recent-ratings-section">
+        <h2>Rating Terbaru Anda</h2>
+        <div class="ratings-list">
+            {% for rating in recent_ratings %}
+            <div class="rating-item">
+                <div class="rating-game-image">
+                    <img src="{{ rating.game.cover_image_url }}" alt="Cover untuk {{ rating.game.name }}">
+                </div>
+                <div class="rating-game-info">
+                    <h4><a href="{% url 'games:game_detail' rating.game.id %}">{{ rating.game.name }}</a></h4>
+                    <div class="rating-stars-display">
+                        {% for i in "12345" %}
+                            <span class="star {% if rating.rating >= i|add:0 %}filled{% endif %}">★</span>
+                        {% endfor %}
+                        <span class="rating-value">{{ rating.rating }}/5</span>
+                    </div>
+                    <p class="rating-date">{{ rating.updated_at|date:"d M Y" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentRecType = 'hybrid';
+    let currentPage = 1;
+    
+    // Recommendation type buttons
+    const recTypeBtns = document.querySelectorAll('.rec-type-btn');
+    const recommendationsContainer = document.getElementById('recommendations-container');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    recTypeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active button
+            recTypeBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update current type and reset page
+            currentRecType = this.dataset.type;
+            currentPage = 1;
+            
+            // Load recommendations
+            loadRecommendations(true);
+        });
+    });
+    
+    // Load more button
+    loadMoreBtn.addEventListener('click', function() {
+        currentPage++;
+        loadRecommendations(false);
+    });
+    
+    function loadRecommendations(replace = true) {
+        const numRecs = currentPage * 12; // Load 12 more each time
+        
+        loadMoreBtn.textContent = 'Loading...';
+        loadMoreBtn.disabled = true;
+        
+        fetch(`{% url 'games:recommendations_api' %}?type=${currentRecType}&num=${numRecs}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.recommendations) {
+                    if (replace) {
+                        recommendationsContainer.innerHTML = '';
+                    }
+                    
+                    // Remove existing cards if replacing
+                    if (replace) {
+                        recommendationsContainer.innerHTML = '';
+                    } else {
+                        // Remove cards that are already displayed
+                        const existingCards = recommendationsContainer.querySelectorAll('.recommendation-card');
+                        const existingCount = existingCards.length;
+                        const newRecommendations = data.recommendations.slice(existingCount);
+                        
+                        newRecommendations.forEach(game => {
+                            const card = createRecommendationCard(game);
+                            recommendationsContainer.appendChild(card);
+                        });
+                    }
+                    
+                    if (replace) {
+                        data.recommendations.forEach(game => {
+                            const card = createRecommendationCard(game);
+                            recommendationsContainer.appendChild(card);
+                        });
+                    }
+                    
+                    // Hide load more button if no more recommendations
+                    if (data.recommendations.length < numRecs) {
+                        loadMoreBtn.style.display = 'none';
+                    } else {
+                        loadMoreBtn.style.display = 'block';
+                    }
+                }
+                
+                loadMoreBtn.textContent = 'Muat Lebih Banyak';
+                loadMoreBtn.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error loading recommendations:', error);
+                loadMoreBtn.textContent = 'Error - Coba Lagi';
+                loadMoreBtn.disabled = false;
+            });
+    }
+    
+    function createRecommendationCard(game) {
+        const card = document.createElement('div');
+        card.className = 'recommendation-card';
+        
+        const releaseYear = game.released ? new Date(game.released).getFullYear() : 'TBA';
+        const rating = game.rating ? game.rating.toFixed(1) : 'N/A';
+        
+        card.innerHTML = `
+            <div class="rec-game-image">
+                <img src="${game.cover_image_url}" alt="Cover untuk ${game.name}">
+            </div>
+            <div class="rec-game-info">
+                <h4><a href="/game/${game.id}/">${game.name}</a></h4>
+                <p class="rec-game-rating">Rating: ${rating}/5</p>
+                <p class="rec-game-release">${releaseYear}</p>
+            </div>
+        `;
+        
+        return card;
+    }
+});
+</script>
+
+<style>
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.dashboard-header h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.welcome-text {
+    color: #666;
+    font-size: 1.1em;
+}
+
+.stats-section {
+    margin-bottom: 40px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    font-size: 2em;
+    color: #007bff;
+}
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 2em;
+    color: #333;
+}
+
+.stat-info p {
+    margin: 5px 0 0 0;
+    color: #666;
+}
+
+.favorite-genres-section {
+    margin-bottom: 40px;
+}
+
+.genre-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.genre-item {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.genre-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.genre-count {
+    background: #007bff;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+}
+
+.recommendations-section {
+    margin-bottom: 40px;
+}
+
+.recommendation-controls {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.rec-type-btn {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
+}
+
+.rec-type-btn:hover {
+    background: #e9ecef;
+}
+
+.rec-type-btn.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.recommendation-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-5px);
+}
+
+.rec-game-image img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.rec-game-info {
+    padding: 15px;
+}
+
+.rec-game-info h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+}
+
+.rec-game-info a {
+    text-decoration: none;
+    color: #333;
+}
+
+.rec-game-info a:hover {
+    color: #007bff;
+}
+
+.rec-game-rating, .rec-game-release {
+    margin: 5px 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.load-more-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.load-more-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.load-more-btn:hover:not(:disabled) {
+    background: #0056b3;
+}
+
+.load-more-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.recent-ratings-section {
+    margin-bottom: 40px;
+}
+
+.ratings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.rating-item {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.rating-game-image img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.rating-game-info {
+    flex: 1;
+}
+
+.rating-game-info h4 {
+    margin: 0 0 8px 0;
+}
+
+.rating-game-info a {
+    text-decoration: none;
+    color: #333;
+}
+
+.rating-game-info a:hover {
+    color: #007bff;
+}
+
+.rating-stars-display {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 5px 0;
+}
+
+.rating-stars-display .star {
+    color: #ddd;
+    font-size: 1.2em;
+}
+
+.rating-stars-display .star.filled {
+    color: #ffd700;
+}
+
+.rating-value {
+    font-weight: bold;
+    color: #333;
+}
+
+.rating-date {
+    margin: 5px 0 0 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .recommendation-controls {
+        justify-content: center;
+    }
+    
+    .rec-type-btn {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .recommendations-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .rating-item {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}

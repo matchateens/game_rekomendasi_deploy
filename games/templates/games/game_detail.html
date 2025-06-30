@@ -1,0 +1,624 @@
+{% extends 'games/base.html' %}
+{% load static %}
+
+{% block title %}{{ game.name }} - Videogames Browser{% endblock %}
+
+{% block content %}
+<div class="game-detail-hero">
+    <div class="hero-background">
+        <img src="{{ game.cover_image_url }}" alt="{{ game.name }}" class="hero-bg-image">
+        <div class="hero-overlay"></div>
+    </div>
+    
+    <div class="container hero-content">
+        <div class="game-info-left">
+            <h1 class="game-title-hero">{{ game.name|upper }}</h1>
+            
+            <div class="game-meta-item">
+                <span class="meta-label">Release date:</span>
+                <span class="meta-value">{{ game.released|date:"F d, Y"|default:"Unknown" }}</span>
+            </div>
+            
+            {% if game.publishers.all %}
+            <div class="game-meta-item">
+                <span class="meta-label">Publisher/s</span>
+                <div class="meta-value">
+                    {% for publisher in game.publishers.all %}
+                        {{ publisher.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if game.genres.all %}
+            <div class="game-meta-item">
+                <span class="meta-label">Genre/s</span>
+                <div class="meta-value">
+                    {% for genre in game.genres.all %}
+                        {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if game.platforms.all %}
+            <div class="game-meta-item">
+                <span class="meta-label">Platform/s</span>
+                <div class="meta-value">
+                    {% for platform in game.platforms.all %}
+                        {{ platform.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if game.description %}
+            <div class="game-meta-item description-section">
+                <span class="meta-label">Description</span>
+                <div class="meta-value description-text">
+                    {{ game.description|truncatewords:50 }}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="game-actions">
+                <div class="get-it-section">
+                    <span class="meta-label">Get it here</span>
+                    <div class="platform-links">
+                        <a href="#" class="platform-link steam">
+                            <i class="fab fa-steam"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="rating-section">
+                    <span class="meta-label">Rating</span>
+                    <div class="star-rating">
+                        {% for i in "12345" %}
+                            <span class="star {% if game.rating >= i|add:0 %}filled{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-screenshots">
+            <div class="screenshot-grid">
+                <div class="screenshot-main">
+                    <img src="{{ game.cover_image_url }}" alt="{{ game.name }} Screenshot 1">
+                </div>
+                <div class="screenshot-small">
+                    <img src="{{ game.cover_image_url }}" alt="{{ game.name }} Screenshot 2">
+                </div>
+                <div class="screenshot-small">
+                    <img src="{{ game.cover_image_url }}" alt="{{ game.name }} Screenshot 3">
+                </div>
+                <div class="screenshot-small">
+                    <img src="{{ game.cover_image_url }}" alt="{{ game.name }} Screenshot 4">
+                </div>
+                <div class="screenshot-small">
+                    <img src="{{ game.cover_image_url }}" alt="{{ game.name }} Screenshot 5">
+                </div>
+                <div class="screenshot-small">
+                    <img src="{{ game.cover_image_url }}" alt="{{ game.name }} Screenshot 6">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<div class="container user-interaction-section">
+    <div class="user-rating-container">
+        <h3>Your Rating:</h3>
+        <div class="rating-stars" data-game-id="{{ game.id }}">
+            {% for i in "12345" %}
+                <span class="star {% if user_rating and user_rating.rating >= i|add:0 %}filled{% endif %}" 
+                      data-rating="{{ i }}">★</span>
+            {% endfor %}
+        </div>
+        {% if user_rating %}
+            <p class="current-rating">Your Rating: {{ user_rating.rating }}/5</p>
+        {% endif %}
+    </div>
+    
+    <button class="bookmark-btn" data-game-id="{{ game.id }}">
+        <i class="fas fa-bookmark"></i> Bookmark Game
+    </button>
+</div>
+{% endif %}
+
+{% if similar_games %}
+<div class="container similar-games-section">
+    <h2>Similar Games</h2>
+    <div class="similar-games-grid">
+        {% for similar_game in similar_games %}
+        <div class="similar-game-card">
+            <div class="similar-game-image">
+                <img src="{{ similar_game.cover_image_url }}" alt="{{ similar_game.name }}">
+            </div>
+            <div class="similar-game-info">
+                <h4><a href="{% url 'games:game_detail' similar_game.id %}">{{ similar_game.name }}</a></h4>
+                <p class="similar-game-rating">Rating: {{ similar_game.rating|floatformat:1|default:"N/A" }}/5</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if user.is_authenticated %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.rating-stars .star');
+    const gameId = document.querySelector('.rating-stars')?.dataset.gameId;
+    
+    if (stars.length > 0 && gameId) {
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.rating);
+                
+                fetch('{% url "games:rate_game" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        game_id: gameId,
+                        rating: rating
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        stars.forEach((s, index) => {
+                            if (index < rating) {
+                                s.classList.add('filled');
+                            } else {
+                                s.classList.remove('filled');
+                            }
+                        });
+                        
+                        const currentRatingEl = document.querySelector('.current-rating');
+                        if (currentRatingEl) {
+                            currentRatingEl.textContent = `Your Rating: ${rating}/5`;
+                        } else {
+                            const ratingSection = document.querySelector('.user-rating-container');
+                            const newRatingEl = document.createElement('p');
+                            newRatingEl.className = 'current-rating';
+                            newRatingEl.textContent = `Your Rating: ${rating}/5`;
+                            ratingSection.appendChild(newRatingEl);
+                        }
+                        
+                        alert('Rating saved successfully!');
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error saving rating');
+                });
+            });
+        });
+    }
+    
+    const bookmarkBtn = document.querySelector('.bookmark-btn');
+    if (bookmarkBtn) {
+        bookmarkBtn.addEventListener('click', function() {
+            const gameId = this.dataset.gameId;
+            
+            fetch('{% url "games:bookmark_game" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                },
+                body: JSON.stringify({
+                    game_id: gameId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.innerHTML = '<i class="fas fa-bookmark"></i> Bookmarked!';
+                    this.style.backgroundColor = '#28a745';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-bookmark"></i> Bookmark Game';
+                        this.style.backgroundColor = '';
+                    }, 2000);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error bookmarking game');
+            });
+        });
+    }
+});
+</script>
+{% endif %}
+
+<style>
+.game-detail-hero {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    color: white;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+}
+
+.hero-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(3px) brightness(0.4);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%);
+    z-index: -1;
+}
+
+.hero-content {
+    display: flex;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 100px 0 50px 0;
+    gap: 50px;
+}
+
+.game-info-left {
+    flex: 1;
+    max-width: 600px;
+}
+
+.game-title-hero {
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 30px;
+    line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.game-meta-item {
+    margin-bottom: 25px;
+}
+
+.meta-label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.meta-value {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    line-height: 1.4;
+}
+
+.description-section {
+    margin-top: 30px;
+}
+
+.description-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+.game-actions {
+    display: flex;
+    gap: 50px;
+    margin-top: 40px;
+    align-items: flex-start;
+}
+
+.platform-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.platform-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.platform-link:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+    color: #00d4ff;
+}
+
+.star-rating {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.star-rating .star {
+    font-size: 1.8rem;
+    color: #444;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.star-rating .star.filled {
+    color: #ffd700;
+}
+
+.game-screenshots {
+    flex: 1;
+    max-width: 600px;
+}
+
+.screenshot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 200px 150px 150px;
+    gap: 15px;
+    height: 100%;
+}
+
+.screenshot-main {
+    grid-column: 1 / -1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.screenshot-small {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.screenshot-grid img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.screenshot-grid img:hover {
+    transform: scale(1.05);
+}
+
+.user-interaction-section {
+    padding: 40px 0;
+    background: var(--bg-secondary);
+    margin-top: 0;
+}
+
+.user-rating-container {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.user-rating-container h3 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.rating-stars .star {
+    font-size: 2rem;
+    color: #444;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rating-stars .star.filled {
+    color: #ffd700;
+}
+
+.rating-stars .star:hover {
+    color: #ffd700;
+    transform: scale(1.1);
+}
+
+.current-rating {
+    color: var(--text-secondary);
+    margin-top: 10px;
+}
+
+.bookmark-btn {
+    background: linear-gradient(135deg, var(--accent-color), #4a90e2);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(96, 165, 250, 0.3);
+}
+
+.bookmark-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+}
+
+.similar-games-section {
+    padding: 60px 0;
+    background: var(--bg-primary);
+}
+
+.similar-games-section h2 {
+    color: var(--text-primary);
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.similar-games-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.similar-game-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    height: 100%;
+}
+
+@media (max-width: 1200px) {
+    .similar-games-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .similar-games-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .similar-games-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.similar-game-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.similar-game-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.similar-game-info {
+    padding: 20px;
+}
+
+.similar-game-info h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.similar-game-info a {
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+}
+
+.similar-game-info a:hover {
+    color: var(--accent-color);
+}
+
+.similar-game-rating {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 1024px) {
+    .hero-content {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .game-title-hero {
+        font-size: 3rem;
+    }
+    
+    .game-actions {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .screenshot-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: 250px repeat(5, 150px);
+    }
+    
+    .screenshot-main {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-title-hero {
+        font-size: 2.5rem;
+    }
+    
+    .hero-content {
+        padding: 80px 0 30px 0;
+    }
+    
+    .screenshot-grid {
+        grid-template-rows: 200px repeat(5, 120px);
+    }
+    
+    .similar-games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-title-hero {
+        font-size: 2rem;
+    }
+    
+    .meta-label {
+        font-size: 1rem;
+    }
+    
+    .meta-value {
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}
