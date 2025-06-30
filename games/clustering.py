@@ -86,7 +86,47 @@ class GameClusteringEngine:
         if self.kmeans is None:
             raise ValueError("Model belum di-fit. Panggil fit() terlebih dahulu.")
         
-        features = self.prepare_features(games)
+        # Convert ke DataFrame dengan struktur yang sama seperti saat fit
+        data = []
+        for game in games:
+            data.append({
+                'Name': game.name,
+                'Rating': game.rating or 0,
+                'Genres': [genre.name for genre in game.genres.all()],
+                'Platforms': [platform.name for platform in game.platforms.all()],
+                'ESRB': game.esrb
+            })
+        
+        df = pd.DataFrame(data)
+        
+        # Standardize Rating menggunakan scaler yang sudah di-fit
+        rating_scaled = self.scaler.transform(df[['Rating']])
+        rating_df = pd.DataFrame(rating_scaled, columns=['Rating'])
+        
+        # Encode ESRB menggunakan encoder yang sudah di-fit
+        esrb_encoded = self.encoder_esrb.transform(df[['ESRB']])
+        esrb_df = pd.DataFrame(
+            esrb_encoded,
+            columns=self.encoder_esrb.get_feature_names_out(['ESRB'])
+        )
+        
+        # Encode Genres menggunakan encoder yang sudah di-fit
+        genres_encoded = self.mlb_genres.transform(df['Genres'])
+        genres_df = pd.DataFrame(
+            genres_encoded,
+            columns=[f"Genre_{g}" for g in self.mlb_genres.classes_]
+        )
+        
+        # Encode Platforms menggunakan encoder yang sudah di-fit
+        platforms_encoded = self.mlb_platforms.transform(df['Platforms'])
+        platforms_df = pd.DataFrame(
+            platforms_encoded,
+            columns=[f"Platform_{p}" for p in self.mlb_platforms.classes_]
+        )
+        
+        # Combine all features
+        features = pd.concat([rating_df, esrb_df, genres_df, platforms_df], axis=1)
+        
         return self.kmeans.predict(features)
     
     def get_cluster_recommendations(self, game, num_recommendations=5):
