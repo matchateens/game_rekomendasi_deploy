@@ -58,7 +58,7 @@ def preprocess_data(df):
     df['Rating'] = df['Rating'].fillna(0)
     df['Genres'] = df['Genres'].fillna('Unknown')
     df['Platforms'] = df['Platforms'].fillna('Unknown')
-    df['ESRB_Rating'] = df['ESRB_Rating'].fillna('Not Rated')
+    df['ESRB'] = df['ESRB'].fillna('Not Rated')
     
     # Convert string lists to actual lists
     df['Genres_List'] = df['Genres'].apply(lambda x: x.split(', ') if isinstance(x, str) else ['Unknown'])
@@ -83,10 +83,10 @@ class GameRecommendationEngine:
         rating_df = pd.DataFrame(rating_scaled, columns=['Rating'])
         
         # Encode ESRB
-        esrb_encoded = self.encoder_esrb.fit_transform(df[['ESRB_Rating']])
+        esrb_encoded = self.encoder_esrb.fit_transform(df[['ESRB']])
         esrb_df = pd.DataFrame(
             esrb_encoded,
-            columns=self.encoder_esrb.get_feature_names_out(['ESRB_Rating'])
+            columns=self.encoder_esrb.get_feature_names_out(['ESRB'])
         )
         
         # Encode Genres
@@ -251,7 +251,7 @@ def main():
             <div class="game-card">
                 <h4>Game Details</h4>
                 <p><strong>Rating:</strong> {selected_game_data['Rating']:.1f}/5</p>
-                <p><strong>ESRB:</strong> {selected_game_data['ESRB_Rating']}</p>
+                <p><strong>ESRB:</strong> {selected_game_data['ESRB']}</p>
                 <p><strong>Cluster:</strong> {st.session_state.cluster_labels[game_idx]}</p>
             </div>
             """, unsafe_allow_html=True)
@@ -296,7 +296,7 @@ def main():
                         <div class="game-card">
                             <h4>{i}. {game['Name']}</h4>
                             <p><strong>Rating:</strong> {game['Rating']:.1f}/5 | 
-                               <strong>ESRB:</strong> {game['ESRB_Rating']} | 
+                               <strong>ESRB:</strong> {game['ESRB']} | 
                                <strong>Cluster:</strong> {game['Cluster']}</p>
                             <p><strong>Genres:</strong> {game['Genres']}</p>
                             <p><strong>Platforms:</strong> {game['Platforms']}</p>
@@ -327,7 +327,7 @@ def main():
             st.histogram_chart(df['Rating'].dropna(), bins=20)
         
         st.write("**Sample Data:**")
-        st.dataframe(df[['Name', 'Rating', 'Genres', 'ESRB_Rating']].head(10))
+        st.dataframe(df[['Name', 'Rating', 'Genres', 'ESRB']].head(10))
 
 if __name__ == "__main__":
     main()
