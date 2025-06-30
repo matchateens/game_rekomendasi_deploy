@@ -4,7 +4,11 @@ A Django-based game recommendation system that provides personalized game sugges
 
 ## Features
 
-- **Hybrid Recommendation Engine**: Combines content-based and collaborative filtering
+- **Advanced Hybrid Recommendation Engine**: 
+  - K-Means Clustering (30%)
+  - Content-Based Filtering (30%)
+  - Collaborative Filtering (20%)
+  - Popularity-Based Recommendations (20%)
 - **Interactive Category Browsing**: Browse games by genres, publishers, ESRB ratings, and rating ranges
 - **Clickable Menu System**: Enhanced navigation with visual category cards
 - **Game Details**: Comprehensive game information with similar game suggestions
@@ -17,7 +21,10 @@ A Django-based game recommendation system that provides personalized game sugges
 - **Backend**: Django 5.2.3
 - **Database**: SQLite (development)
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap 5.3
-- **Machine Learning**: scikit-learn for recommendation algorithms
+- **Machine Learning**: 
+  - scikit-learn for K-Means clustering and similarity calculations
+  - StandardScaler, OneHotEncoder, MultiLabelBinarizer for feature preprocessing
+  - Cosine similarity for content-based filtering
 - **Data Processing**: pandas, numpy
 
 ## Installation
