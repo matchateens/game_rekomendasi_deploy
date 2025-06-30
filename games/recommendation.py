@@ -117,12 +117,43 @@ class HybridRecommendationEngine:
     
     def _hybrid_recommendations(self, user, num_recommendations):
         """
-        Hybrid approach yang menggabungkan content-based dan collaborative
+        Hybrid approach yang menggabungkan:
+        1. K-Means Clustering (30%)
+        2. Content-based Filtering (30%)
+        3. Collaborative Filtering (20%)
+        4. Popularity-based (20%)
         """
+        from .clustering import GameClusteringEngine
+        
+        # Update weights
+        self.content_weight = 0.3
+        self.collaborative_weight = 0.2
+        self.popularity_weight = 0.2
+        self.clustering_weight = 0.3
+        
         # Get recommendations dari masing-masing method
         content_recs = self._content_based_recommendations(user, num_recommendations * 2)
         collaborative_recs = self._collaborative_recommendations(user, num_recommendations * 2)
         popular_recs = self._popularity_based_recommendations(user, num_recommendations)
+        
+        # Get cluster recommendations
+        cluster_recs = []
+        try:
+            # Get user's highest rated game
+            top_rated_game = UserGameRating.objects.filter(user=user).order_by('-rating').first()
+            if top_rated_game:
+                # Initialize clustering engine
+                clustering_engine = GameClusteringEngine(n_clusters=4)
+                # Fit model with all games
+                all_games = Game.objects.all()
+                clustering_engine.fit(all_games)
+                # Get recommendations from same cluster
+                cluster_recs = clustering_engine.get_cluster_recommendations(
+                    top_rated_game.game, 
+                    num_recommendations * 2
+                )
+        except Exception as e:
+            logger.error(f"Error getting cluster recommendations: {str(e)}")
         
         # Combine dan weight the recommendations
         game_scores = {}
@@ -140,6 +171,11 @@ class HybridRecommendationEngine:
         # Popularity scores
         for i, game in enumerate(popular_recs):
             score = (len(popular_recs) - i) / len(popular_recs) * self.popularity_weight
+            game_scores[game.id] = game_scores.get(game.id, 0) + score
+            
+        # Clustering scores
+        for i, game in enumerate(cluster_recs):
+            score = (len(cluster_recs) - i) / len(cluster_recs) * self.clustering_weight
             game_scores[game.id] = game_scores.get(game.id, 0) + score
         
         # Sort by combined score
