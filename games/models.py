@@ -34,6 +34,7 @@ class Game(models.Model):
     description = models.TextField(null=True, blank=True)
     cover_image_url = models.URLField(max_length=500, null=True, blank=True, default='https://via.placeholder.com/250x350.png?text=No+Image')
     esrb = models.CharField(max_length=10, null=True, blank=True)  # For storing ESRB ratings
+    store_url = models.JSONField(null=True, blank=True, default=dict)  # For storing platform store URLs
     
     genres = models.ManyToManyField(Genre, blank=True)
     platforms = models.ManyToManyField(Platform, blank=True)

@@ -27,13 +27,33 @@
                                 <p class="game-release-date">Rilis: {{ game.released|date:"Y-m-d"|default:"TBA" }}</p>
                                 <p class="game-rating">Rating: {{ game.rating|floatformat:1|default:"N/A" }}/5</p>
                             </div>
-                            {% if game.platforms.all %}
-                            <div class="game-platforms">
+                        {% if game.platforms.all %}
+                        <div class="game-platforms">
+                            {% with has_pc=False has_playstation=False has_xbox=False has_nintendo=False has_android=False has_ios=False %}
                                 {% for platform in game.platforms.all %}
-                                    <i class="{{ platform.icon_class }}" title="{{ platform.name }}"></i>
+                                    {% if platform.name == "PC" and not has_pc %}
+                                        <i class="fab fa-steam" title="PC"></i>
+                                        {% with has_pc=True %}{% endwith %}
+                                    {% elif "PlayStation" in platform.name and not has_playstation %}
+                                        <i class="fab fa-playstation" title="PlayStation"></i>
+                                        {% with has_playstation=True %}{% endwith %}
+                                    {% elif "Xbox" in platform.name and not has_xbox %}
+                                        <i class="fab fa-xbox" title="Xbox"></i>
+                                        {% with has_xbox=True %}{% endwith %}
+                                    {% elif "Nintendo" in platform.name and not has_nintendo %}
+                                        <i class="fas fa-gamepad" title="Nintendo"></i>
+                                        {% with has_nintendo=True %}{% endwith %}
+                                    {% elif platform.name == "Android" and not has_android %}
+                                        <i class="fab fa-android" title="Android"></i>
+                                        {% with has_android=True %}{% endwith %}
+                                    {% elif platform.name == "iOS" and not has_ios %}
+                                        <i class="fab fa-apple" title="iOS"></i>
+                                        {% with has_ios=True %}{% endwith %}
+                                    {% endif %}
                                 {% endfor %}
-                            </div>
-                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        {% endif %}
                         </div>
                     </a>
                 </div>

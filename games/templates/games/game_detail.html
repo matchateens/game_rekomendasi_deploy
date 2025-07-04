@@ -44,7 +44,18 @@
             {% if game.platforms.all %}
             <div class="game-meta-item">
                 <span class="meta-label">Platform/s</span>
-                <div class="meta-value">
+                <div class="platform-icons">
+                    {% for platform in game.platforms.all %}
+                        <span class="platform-icon" title="{{ platform.name }}">
+                            {% if platform.icon_class %}
+                                <i class="{{ platform.icon_class }}"></i>
+                            {% else %}
+                                <i class="fas fa-gamepad"></i>
+                            {% endif %}
+                        </span>
+                    {% endfor %}
+                </div>
+                <div class="meta-value platform-names">
                     {% for platform in game.platforms.all %}
                         {{ platform.name }}{% if not forloop.last %}, {% endif %}
                     {% endfor %}
@@ -65,9 +76,49 @@
                 <div class="get-it-section">
                     <span class="meta-label">Get it here</span>
                     <div class="platform-links">
-                        <a href="#" class="platform-link steam">
-                            <i class="fab fa-steam"></i>
-                        </a>
+                        {% comment %} Create unique platform groups to avoid duplicates {% endcomment %}
+                        {% with has_pc=False has_playstation=False has_xbox=False has_nintendo=False has_android=False has_ios=False %}
+                            {% for platform in game.platforms.all %}
+                                {% if platform.name == "PC" and not has_pc %}
+                                    <a href="https://store.steampowered.com/search/?term={{ game.name|urlencode }}" target="_blank" class="platform-link steam" title="Steam Store">
+                                        <i class="fab fa-steam"></i>
+                                    </a>
+                                    {% with has_pc=True %}{% endwith %}
+                                {% elif "PlayStation" in platform.name and not has_playstation %}
+                                    <a href="https://store.playstation.com/en-us/search/{{ game.name|urlencode }}" target="_blank" class="platform-link playstation" title="PlayStation Store">
+                                        <i class="fab fa-playstation"></i>
+                                    </a>
+                                    {% with has_playstation=True %}{% endwith %}
+                                {% elif "Xbox" in platform.name and not has_xbox %}
+                                    <a href="https://www.microsoft.com/en-us/search?q={{ game.name|urlencode }}" target="_blank" class="platform-link xbox" title="Microsoft Store">
+                                        <i class="fab fa-xbox"></i>
+                                    </a>
+                                    {% with has_xbox=True %}{% endwith %}
+                                {% elif "Nintendo" in platform.name and not has_nintendo %}
+                                    <a href="https://www.nintendo.com/us/search/?q={{ game.name|urlencode }}" target="_blank" class="platform-link nintendo" title="Nintendo eShop">
+                                        <i class="fas fa-gamepad"></i>
+                                    </a>
+                                    {% with has_nintendo=True %}{% endwith %}
+                                {% elif platform.name == "Android" and not has_android %}
+                                    <a href="https://play.google.com/store/search?q={{ game.name|urlencode }}" target="_blank" class="platform-link android" title="Google Play Store">
+                                        <i class="fab fa-google-play"></i>
+                                    </a>
+                                    {% with has_android=True %}{% endwith %}
+                                {% elif platform.name == "iOS" and not has_ios %}
+                                    <a href="https://apps.apple.com/search?term={{ game.name|urlencode }}" target="_blank" class="platform-link ios" title="App Store">
+                                        <i class="fab fa-app-store"></i>
+                                    </a>
+                                    {% with has_ios=True %}{% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                        
+                        <!-- Fallback Steam link if no specific platform found -->
+                        {% if not game.platforms.all %}
+                            <a href="https://store.steampowered.com/search/?term={{ game.name|urlencode }}" target="_blank" class="platform-link steam" title="Steam Store">
+                                <i class="fab fa-steam"></i>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -317,6 +368,58 @@ document.addEventListener('DOMContentLoaded', function() {
     line-height: 1.4;
 }
 
+.platform-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+    max-width: 400px;
+}
+
+.platform-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.platform-icon i {
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.platform-icon:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+.platform-icon:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.platform-names {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #999;
+    line-height: 1.4;
+}
+
 .description-section {
     margin-top: 30px;
 }
@@ -353,12 +456,34 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 1.5rem;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+    position: relative;
 }
 
 .platform-link:hover {
     background: rgba(255,255,255,0.2);
     transform: translateY(-2px);
-    color: #00d4ff;
+}
+
+.platform-link.steam:hover { color: #00adee; }
+.platform-link.playstation:hover { color: #003791; }
+.platform-link.xbox:hover { color: #107c10; }
+.platform-link.nintendo:hover { color: #e60012; }
+.platform-link.android:hover { color: #a4c639; }
+.platform-link.ios:hover { color: #000000; }
+
+.platform-link:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
 }
 
 .star-rating {
