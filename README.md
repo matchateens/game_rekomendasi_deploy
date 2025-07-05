@@ -1,5 +1,5 @@
 # Game Recommender System
-![CI](https://github.com/matchateens/game-recommender-system/actions/workflows/django.yaml/badge.svg)
+![CI](https://github.com/matchateens/game-recommender-system/actions/workflows/django.yaml/badge.svg?branch=master)
 
 Sistem rekomendasi game menggunakan machine learning dengan antarmuka Streamlit.
 
