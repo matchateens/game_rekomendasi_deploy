@@ -51,7 +51,7 @@ File `games.csv` berisi data game dengan kolom:
 
 ## Teknologi yang Digunakan
 
-- Python 3.8+
+- Python 3.9+
 - Streamlit
 - Pandas
 - Scikit-learn
