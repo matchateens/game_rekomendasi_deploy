@@ -46,13 +46,19 @@
                 <span class="meta-label">Platform/s</span>
                 <div class="platform-icons">
                     {% for platform in game.platforms.all %}
-                        <span class="platform-icon" title="{{ platform.name }}">
-                            {% if platform.icon_class %}
-                                <i class="{{ platform.icon_class }}"></i>
+                        {% with store_link=game.store_url.platform.name %}
+                            {% if store_link %}
+                                <a href="{{ store_link }}" target="_blank" class="platform-icon" title="{{ platform.name }}">
                             {% else %}
-                                <i class="fas fa-gamepad"></i>
+                                <a href="{% url 'games:games_by_platform' platform.name|slugify %}" class="platform-icon" title="{{ platform.name }}">
                             {% endif %}
-                        </span>
+                                {% if platform.icon_class %}
+                                    <i class="{{ platform.icon_class }}"></i>
+                                {% else %}
+                                    <i class="fas fa-gamepad"></i>
+                                {% endif %}
+                            </a>
+                        {% endwith %}
                     {% endfor %}
                 </div>
                 <div class="meta-value platform-names">
