@@ -20,7 +20,7 @@ Sistem rekomendasi game berbasis Django dengan personalisasi berdasarkan interak
 
 Halaman rekomendasi dan eksplorasi game populer:
 
-![Game Recommender Screenshot](https://raw.githubusercontent.com/matchateens/game_rekomendasi_deploy/assets/screenshot_home.png)
+![Game Recommender Screenshot](https://raw.githubusercontent.com/matchateens/game_rekomendasi_deploy/master/assets/screenshot_home.png)
 
 ---
 
