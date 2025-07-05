@@ -1,0 +1,1024 @@
+:root {
+    --bg-primary: #18181B;
+    --bg-secondary: #27272A;
+    --bg-tertiary: #3F3F46;
+    --text-primary: #F4F4F5;
+    --text-secondary: #A1A1AA;
+    --accent-color: #60A5FA; /* Bright Blue */
+    --border-color: #3F3F46;
+    --card-hover-bg: #313136;
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 48px;
+
+    --header-height-mobile: 60px;
+    --header-height-desktop: 70px;
+    --border-radius-main: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden; /* Mencegah horizontal scroll yang tidak diinginkan */
+}
+
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* --- Header --- */
+.site-header {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(39, 39, 42, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    padding: var(--spacing-sm) 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-color);
+    min-height: var(--header-height-mobile);
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 var(--spacing-md);
+    position: relative;
+}
+
+.header-left {
+    position: absolute;
+    left: 0;
+    z-index: 10;
+}
+
+.main-nav {
+    display: none;
+    position: absolute;
+    right: 0;
+    z-index: 10;
+}
+
+.site-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.site-logo:hover {
+    color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+.site-logo i {
+    font-size: 1.6rem;
+    color: var(--accent-color);
+    transition: transform 0.3s ease;
+}
+
+.site-logo:hover i {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.main-nav {
+    display: none;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+}
+
+.main-nav ul {
+    list-style: none;
+    display: flex;
+    gap: var(--spacing-lg);
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.main-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-main);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.main-nav .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.main-nav .nav-link:hover::before {
+    left: 100%;
+}
+
+.main-nav .nav-link:hover,
+.main-nav .nav-link.active {
+    color: var(--text-primary);
+    background-color: rgba(96, 165, 250, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+}
+
+.main-nav .nav-link i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.main-nav .nav-link:hover i {
+    transform: scale(1.2);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+/* Search Form Styling */
+.search-form {
+    display: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 400px;
+    z-index: 5;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input-wrapper input[type="search"] {
+    width: 250px;
+    padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-input-wrapper input[type="search"]:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    width: 300px;
+}
+
+.search-input-wrapper input[type="search"]::placeholder {
+    color: var(--text-secondary);
+}
+
+.search-input-wrapper button {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.search-input-wrapper button:hover {
+    color: var(--accent-color);
+    background-color: rgba(96, 165, 250, 0.1);
+}
+
+.mobile-nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-main);
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-toggle:hover {
+    background-color: rgba(96, 165, 250, 0.1);
+    color: var(--accent-color);
+}
+
+/* Mobile Navigation Menu */
+.mobile-nav-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(39, 39, 42, 0.98) 100%);
+    backdrop-filter: blur(10px);
+    padding: var(--spacing-lg) 0;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 999;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-nav-menu.active {
+    display: block;
+}
+
+.mobile-search-form {
+    margin-bottom: var(--spacing-lg);
+}
+
+.mobile-search-form .search-input-wrapper input[type="search"] {
+    width: 100%;
+}
+
+.mobile-nav-menu ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin: 0;
+    padding: 0;
+}
+
+.mobile-nav-menu .mobile-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-main);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.mobile-nav-menu .mobile-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--accent-color);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.mobile-nav-menu .mobile-link:hover::before,
+.mobile-nav-menu .mobile-link.active::before {
+    transform: scaleY(1);
+}
+
+.mobile-nav-menu .mobile-link:hover,
+.mobile-nav-menu .mobile-link.active {
+    color: var(--text-primary);
+    background-color: rgba(96, 165, 250, 0.1);
+    transform: translateX(8px);
+}
+
+.mobile-nav-menu .mobile-link i {
+    font-size: 1.2rem;
+    width: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.mobile-nav-menu .mobile-link:hover i {
+    transform: scale(1.2);
+    color: var(--accent-color);
+}
+
+
+/* --- Search Section --- */
+.search-section {
+    padding: var(--spacing-lg) 0 var(--spacing-xl) 0; /* Kurangi padding bawah sedikit */
+}
+
+.search-bar {
+    display: flex;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.search-bar input[type="search"] {
+    width: 100%;
+    padding: var(--spacing-md);
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-main);
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-bar input[type="search"]::placeholder {
+    color: var(--text-secondary);
+}
+.search-bar input[type="search"]:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25); /* Shadow lebih halus */
+}
+
+/* --- Games Showcase --- */
+.games-showcase-container {
+    padding-top: 0; /* Hapus padding atas karena search section sudah punya padding bawah */
+    padding-bottom: var(--spacing-xl);
+}
+.games-showcase {
+    display: grid;
+    gap: var(--spacing-lg); /* Default gap untuk mobile */
+}
+
+.category-column h2 {
+    font-size: 1.6rem;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-primary);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border-color);
+    position: relative;
+}
+.category-column h2::after { /* Aksen garis bawah opsional */
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px; /* Tepat di atas border-bottom */
+    width: 50px; /* Lebar aksen */
+    height: 2px;
+    background-color: var(--accent-color);
+}
+
+
+.game-card {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-main);
+    overflow: hidden;
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid transparent; /* Untuk transisi border */
+    margin-bottom: var(--spacing-md); /* Jarak antar card di satu kolom mobile */
+}
+.game-card:hover {
+    background-color: var(--card-hover-bg);
+    transform: translateY(-3px);
+    border-color: var(--accent-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.game-image img {
+    width: 80px; /* Ukuran gambar di mobile lebih kecil */
+    height: 110px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+    background-color: var(--bg-tertiary); /* Fallback jika gambar lambat loading */
+}
+
+.game-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.game-title {
+    font-size: 1rem; /* Ukuran judul di mobile */
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.3; /* Agar tidak terlalu jauh jika 2 baris */
+}
+
+.game-release-date {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.game-platforms {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    margin-top: var(--spacing-sm); /* Memberi sedikit jarak dari rilis date */
+}
+
+.game-platforms i {
+    font-size: 1rem; /* Ukuran ikon platform di mobile */
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+.game-platforms i:hover {
+    color: var(--accent-color); /* Warna aksen saat hover ikon */
+}
+
+/* Pesan Error dan No Games */
+.error-message, .no-games-message {
+    text-align: center;
+    padding: var(--spacing-xl);
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-radius: var(--border-radius-main);
+    margin-bottom: var(--spacing-xl);
+}
+.error-message {
+    color: #f87171; /* Merah untuk error */
+    border: 1px solid #f87171;
+}
+
+
+/* --- Footer --- */
+.site-footer {
+    background-color: var(--bg-tertiary); /* Footer dibuat sedikit beda */
+    color: var(--text-secondary);
+    padding: var(--spacing-lg) 0;
+    text-align: center;
+    margin-top: var(--spacing-xxl);
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content p {
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-xs);
+}
+.footer-content p:last-child {
+    margin-bottom: 0;
+}
+.footer-content a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+.footer-content a:hover {
+    text-decoration: underline;
+}
+
+
+/* --- Responsive Design --- */
+/* Mobile (default, < 768px) - sudah diatur di atas (Mobile First) */
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) {
+    .site-header {
+        min-height: var(--header-height-desktop);
+    }
+    
+    .site-logo {
+        font-size: 1.6rem;
+    }
+    
+    .site-logo i {
+        font-size: 1.8rem;
+    }
+    
+    .mobile-nav-toggle {
+        display: none;
+    }
+    
+    .main-nav {
+        display: flex;
+    }
+    
+    .search-form {
+        display: block;
+    }
+    
+    .mobile-nav-menu {
+        display: none !important; 
+    }
+
+    .search-section {
+        padding-top: var(--spacing-xl);
+    }
+    
+    .games-showcase {
+        grid-template-columns: repeat(2, 1fr); 
+        gap: var(--spacing-lg);
+    }
+    .category-column h2 {
+        font-size: 1.75rem;
+    }
+    .game-card {
+        margin-bottom: 0;
+    }
+    .game-image img {
+        width: 100px;
+        height: 140px;
+    }
+    .game-title {
+        font-size: 1.1rem;
+    }
+    .game-platforms i {
+        font-size: 1.1rem;
+    }
+}
+
+/* Desktop (1024px - 1439px) */
+@media (min-width: 1024px) {
+    .site-logo {
+        font-size: 1.8rem;
+    }
+    
+    .site-logo i {
+        font-size: 2rem;
+    }
+    
+    .main-nav ul {
+        gap: var(--spacing-xl);
+    }
+    
+    .search-input-wrapper input[type="search"] {
+        width: 300px;
+    }
+    
+    .search-input-wrapper input[type="search"]:focus {
+        width: 350px;
+    }
+    
+    .games-showcase {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-xl);
+    }
+    .game-image img {
+        width: 110px;
+        height: 155px;
+    }
+    .game-title {
+        font-size: 1.15rem;
+    }
+}
+
+/* Large Desktop (1440px+) */
+@media (min-width: 1440px) {
+    .search-input-wrapper input[type="search"] {
+        width: 350px;
+    }
+    
+    .search-input-wrapper input[type="search"]:focus {
+        width: 400px;
+    }
+}
+
+/* --- Platform Icons Styling --- */
+.game-info {
+    /* Menjadikan .game-info sebagai kontainer referensi posisi */
+    position: relative; 
+    /* Beri ruang di bawah agar ikon tidak menimpa teks */
+    padding-bottom: 25px; 
+}
+
+/* --- Platform Icons Styling --- */
+.game-info {
+    /* Menjadikan .game-info sebagai kontainer referensi posisi */
+    position: relative; 
+    /* Beri ruang di bawah agar ikon tidak menimpa teks */
+    padding-bottom: 30px; 
+    /* Menjaga tinggi minimum kartu agar ikon tidak keluar */
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.game-platforms {
+    /* Mengatur posisi ikon ke pojok kanan bawah */
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px; /* Jarak antar ikon */
+}
+
+.game-platforms i {
+    font-size: 16px; /* Ukuran ikon */
+    color: #aaa; /* Warna ikon */
+    transition: color 0.2s;
+}
+
+.game-platforms i:hover {
+    color: #fff; /* Warna ikon saat disentuh mouse */
+}
+
+/* Publisher List Styling */
+.publisher-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: var(--spacing-md);
+}
+
+.publisher-card {
+    position: relative;
+    height: 200px;
+    color: white;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--border-radius-main);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.publisher-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.publisher-overlay {
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+    width: 100%;
+    padding: var(--spacing-md);
+    backdrop-filter: blur(4px);
+}
+
+.publisher-overlay h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.publisher-overlay p {
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.publisher-overlay ul {
+    margin: 0;
+    padding-left: 1rem;
+    list-style: none;
+}
+
+.publisher-overlay li {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+}
+
+.publisher-overlay li:before {
+    content: "•";
+    color: var(--accent-color);
+    margin-right: 0.5rem;
+}
+
+/* ESRB List Styling */
+.esrb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: var(--spacing-md);
+}
+
+.esrb-card {
+    position: relative;
+    height: 200px;
+    color: white;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--border-radius-main);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.esrb-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.esrb-overlay {
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+    width: 100%;
+    padding: var(--spacing-md);
+    backdrop-filter: blur(4px);
+}
+
+.esrb-overlay h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.esrb-overlay p {
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.esrb-overlay ul {
+    margin: 0;
+    padding-left: 1rem;
+    list-style: none;
+}
+
+.esrb-overlay li {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+}
+
+.esrb-overlay li:before {
+    content: "•";
+    color: var(--accent-color);
+    margin-right: 0.5rem;
+}
+
+/* Page Title Styles */
+.page-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-lg) 0;
+    position: relative;
+}
+
+.page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: var(--accent-color);
+    border-radius: 2px;
+}
+
+/* Common Menu Header Styles */
+.menu-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-main);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+}
+
+.menu-header-icon {
+    font-size: 2rem;
+    color: var(--accent-color);
+}
+
+.menu-header-text {
+    flex-grow: 1;
+}
+
+.menu-header h1 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.menu-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* ESRB Info Section */
+.esrb-info {
+    background-color: var(--bg-secondary);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-main);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--border-color);
+}
+
+.esrb-info p {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+}
+
+.esrb-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.esrb-list li {
+    color: var(--text-secondary);
+    padding: var(--spacing-sm);
+    background-color: rgba(96, 165, 250, 0.1);
+    border-radius: var(--border-radius-main);
+    border-left: 4px solid var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+.esrb-list li:hover {
+    background-color: rgba(96, 165, 250, 0.2);
+    transform: translateX(4px);
+}
+
+.esrb-list li strong {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* Genre Grid Styles */
+.genre-grid, .publisher-grid, .esrb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: var(--spacing-md);
+}
+
+.genre-card, .publisher-card, .esrb-card {
+    position: relative;
+    height: 200px;
+    color: white;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--border-radius-main);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.genre-card:hover, .publisher-card:hover, .esrb-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.genre-overlay, .publisher-overlay, .esrb-overlay {
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+    width: 100%;
+    padding: var(--spacing-md);
+    backdrop-filter: blur(4px);
+}
+
+.genre-overlay h2, .publisher-overlay h2, .esrb-overlay h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.genre-overlay p, .publisher-overlay p, .esrb-overlay p {
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.genre-overlay ul, .publisher-overlay ul, .esrb-overlay ul {
+    margin: 0;
+    padding-left: 1rem;
+    list-style: none;
+}
+
+.genre-overlay li, .publisher-overlay li, .esrb-overlay li {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+}
+
+.genre-overlay li:before, .publisher-overlay li:before, .esrb-overlay li:before {
+    content: "•";
+    color: var(--accent-color);
+    margin-right: 0.5rem;
+}
+
+/* Rating Grid Styles */
+.rating-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: var(--spacing-md);
+}
+
+.rating-card {
+    position: relative;
+    height: 200px;
+    color: white;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--border-radius-main);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rating-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.rating-overlay {
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+    width: 100%;
+    padding: var(--spacing-md);
+    backdrop-filter: blur(4px);
+}
+
+.rating-overlay h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.rating-overlay p {
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.rating-overlay ul {
+    margin: 0;
+    padding-left: 1rem;
+    list-style: none;
+}
+
+.rating-overlay li {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin: 0.25rem 0;
+}
+
+.rating-overlay li:before {
+    content: "•";
+    color: var(--accent-color);
+    margin-right: 0.5rem;
+}
+
+/* (Untuk Large Desktop 1440px+, aturan dari 1024px+ akan tetap berlaku 
+   jika tidak ada override spesifik. Blok @media (min-width: 1440px) yang kosong telah dihapus) */
+

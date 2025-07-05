@@ -1,0 +1,22 @@
+server {
+    listen 80;
+    server_name 34.101.51.219;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/parth_nangroo/game-recommender-system;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/parth_nangroo/game-recommender-system/text.sock;
+    }
+}
+
+
+
+
+
+
+
+

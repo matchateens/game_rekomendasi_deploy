@@ -19,6 +19,7 @@ urlpatterns = [
     path('esrb/<slug:esrb_slug>/', views.games_by_esrb, name='games_by_esrb'),
     path('ratings/', views.rating_list, name='rating_list'),
     path('rating/<str:rating_range>/', views.games_by_rating, name='games_by_rating'),
+    path('platform/<slug:platform_slug>/', views.games_by_platform, name='games_by_platform'),
     
     # API endpoints
     path('api/rate/', views.rate_game, name='rate_game'),
