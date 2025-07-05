@@ -1,5 +1,5 @@
 # 🎮 Game Recommender System (Django)
-
+![CI](https://github.com/matchateens/game_rekomendasi_deploy/actions/workflows/django.yml/badge.svg?branch=master)
 Sistem rekomendasi game berbasis Django dengan personalisasi berdasarkan interaksi pengguna. Menggunakan hybrid recommendation engine (content-based + collaborative filtering) dan UI yang ramah pengguna.
 
 🚀 Dideploy di **Google Cloud Platform** menggunakan:
